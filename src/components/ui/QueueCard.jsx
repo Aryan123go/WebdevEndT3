@@ -1,24 +1,24 @@
 import React from 'react';
-import { Users, Clock, ArrowRight } from 'lucide-react';
+import { Users, Clock, ArrowRight, Eye } from 'lucide-react';
 
-export default function QueueCard({ id, title, waitTime, peopleAhead, onJoin, isJoining }) {
+export default function QueueCard({ id, title, waitTime, peopleAhead, onJoin, isJoining, isUserInQueue }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow relative overflow-hidden group">
+    <div className={`bg-white rounded-2xl shadow-sm border ${isUserInQueue ? 'border-emerald-200 shadow-emerald-50' : 'border-slate-100'} p-6 hover:shadow-md transition-shadow relative overflow-hidden group`}>
       {/* Decorative background element */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
+      <div className={`absolute top-0 right-0 w-32 h-32 ${isUserInQueue ? 'bg-emerald-50' : 'bg-blue-50'} rounded-bl-full -z-10 transition-transform group-hover:scale-110`}></div>
       
       <div className="flex justify-between items-start mb-6">
         <div>
           <h3 className="text-xl font-bold text-slate-800 tracking-tight">{title}</h3>
           <p className="text-sm text-slate-500 mt-1 capitalize">{id} Service</p>
         </div>
-        <div className="flex items-center space-x-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold">
+        <div className={`flex items-center space-x-1.5 px-3 py-1.5 ${isUserInQueue ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-50 text-blue-700'} rounded-full text-sm font-semibold`}>
           <Users className="w-4 h-4" />
           <span>{peopleAhead} <span className="opacity-75 font-medium">waiting</span></span>
         </div>
       </div>
       
-      <div className="flex items-center space-x-3 mb-8 bg-slate-50 p-4 rounded-xl border border-slate-100">
+      <div className={`flex items-center space-x-3 mb-8 ${isUserInQueue ? 'bg-emerald-50/50' : 'bg-slate-50'} p-4 rounded-xl border border-slate-100`}>
         <div className="p-2 bg-white rounded-lg shadow-sm">
           <Clock className="w-5 h-5 text-slate-600" />
         </div>
@@ -33,10 +33,14 @@ export default function QueueCard({ id, title, waitTime, peopleAhead, onJoin, is
       <button 
         onClick={() => onJoin(id)}
         disabled={isJoining}
-        className="w-full flex items-center justify-center space-x-2 py-3.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 active:bg-blue-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-blue-100"
+        className={`w-full flex items-center justify-center space-x-2 py-3.5 rounded-xl font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-4 ${
+          isUserInQueue 
+            ? 'bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 focus:ring-emerald-100' 
+            : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus:ring-blue-100'
+        }`}
       >
-        <span>{isJoining ? 'Joining...' : 'Join Queue'}</span>
-        {!isJoining && <ArrowRight className="w-5 h-5" />}
+        <span>{isUserInQueue ? 'Currently In Queue' : (isJoining ? 'Joining...' : 'Join Queue')}</span>
+        {!isJoining && (isUserInQueue ? <Eye className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />)}
       </button>
     </div>
   );

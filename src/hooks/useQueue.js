@@ -18,22 +18,33 @@ export function useQueue(queueId) {
       return;
     }
 
+    // We only use one where() clause here to avoid Firebase requiring a Composite Index, 
+    // which causes the query to fail silently if the index isn't built in the Firebase Console.
     const q = query(
       collection(db, "queueEntries"),
-      where("queueId", "==", queueId),
-      where("status", "==", "waiting"),
-      orderBy("joinedAt", "asc")
+      where("queueId", "==", queueId)
     );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const waitlist = [];
+      let waitlist = [];
       querySnapshot.forEach((doc) => {
         waitlist.push({ id: doc.id, ...doc.data() });
       });
+
+      // Filter and sort securely on the client-side
+      waitlist = waitlist.filter(entry => entry.status === "waiting");
+      
+      waitlist.sort((a, b) => {
+        // Handle serverTimestamps that might initially be null while writing
+        const timeA = a.joinedAt?.toMillis() || Date.now();
+        const timeB = b.joinedAt?.toMillis() || Date.now();
+        return timeA - timeB;
+      });
+
       setEntries(waitlist);
       setLoading(false);
     }, (err) => {
-      console.error(err);
+      console.error("Firestore Error:", err);
       setError("Failed to fetch queue");
       setLoading(false);
     });

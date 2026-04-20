@@ -48,9 +48,14 @@ export default function Dashboard() {
 
 // A wrapper component to fetch individual queue data
 function QueueCardWrapper({ queue, onJoin }) {
-  const { entries, AVG_WAIT_PER_PERSON_MINS } = useQueue(queue.id);
+  const { entries, AVG_WAIT_PER_PERSON_MINS, getUserPosition } = useQueue(queue.id);
+  const { currentUser } = useAuth();
+  
   const peopleAhead = entries.length;
   const waitTime = peopleAhead * AVG_WAIT_PER_PERSON_MINS;
+  
+  const position = getUserPosition(currentUser?.uid);
+  const isUserInQueue = position !== null;
 
   return (
     <QueueCard
@@ -59,6 +64,7 @@ function QueueCardWrapper({ queue, onJoin }) {
       waitTime={waitTime}
       peopleAhead={peopleAhead}
       onJoin={onJoin}
+      isUserInQueue={isUserInQueue}
     />
   );
 }
